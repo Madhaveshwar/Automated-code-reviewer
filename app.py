@@ -5,9 +5,15 @@ from __future__ import annotations
 import json
 from datetime import datetime, timezone
 
+from dotenv import load_dotenv
+
+load_dotenv()
+
 import streamlit as st
 import streamlit.components.v1 as components
 
+from reviewer import get_runtime_status
+from reviewer import langsmith_test
 from reviewer import review_code
 from utils.prompts import SUPPORTED_LANGUAGE_OPTIONS, code_fence_language
 from utils.validation import is_valid_code
@@ -196,6 +202,30 @@ def render_copy_button(text: str, label: str = "Copy review to clipboard") -> No
     components.html(html, height=55)
 
 
+def render_startup_status() -> None:
+    """Show runtime configuration status without changing the main UI flow."""
+
+    status = get_runtime_status()
+
+    if status["groq_api_key_present"]:
+        st.sidebar.success("Groq API key detected.")
+    else:
+        st.sidebar.warning("GROQ_API_KEY is missing.")
+
+    if status["langchain_api_key_present"] and status["langchain_tracing_enabled"]:
+        st.sidebar.success(f'LangSmith tracing enabled for {status["langchain_project"]}.')
+        if not st.session_state.get("langsmith_startup_trace_sent"):
+            try:
+                langsmith_test()
+            except Exception as exc:
+                st.sidebar.warning(f"LangSmith startup trace failed: {exc}")
+            st.session_state.langsmith_startup_trace_sent = True
+    elif status["langchain_api_key_present"]:
+        st.sidebar.warning("LANGCHAIN_API_KEY is present, but LANGCHAIN_TRACING_V2 is not enabled.")
+    else:
+        st.sidebar.warning("LANGCHAIN_API_KEY is missing.")
+
+
 inject_styles()
 initialize_state()
 
@@ -219,6 +249,8 @@ with st.sidebar:
     st.write(
         "This app uses Streamlit and the Groq API to generate structured code reviews with actionable feedback, severity guidance, and improved code suggestions."
     )
+
+    render_startup_status()
 
 with st.container(border=False):
     st.markdown('<div class="hero-card">', unsafe_allow_html=True)

@@ -14,6 +14,8 @@ A simple AI-powered code review web application built with Python, Streamlit, an
 - Syntax-highlighted code preview
 - Empty input validation and error handling
 - Review history in the current session
+- LangSmith tracing for prompt, review, and model metadata capture
+- Startup validation for Groq and LangSmith configuration
 
 ## Project Structure
 
@@ -40,10 +42,13 @@ Create a `.env` file in the project root:
 
 ```env
 GROQ_API_KEY=your_groq_api_key
-GROQ_MODEL=llama3-70b-8192
+
+LANGCHAIN_API_KEY=your_existing_langsmith_key
+LANGCHAIN_TRACING_V2=true
+LANGCHAIN_PROJECT=Automated_Code_Reviewer
 ```
 
-You can use the provided `.env` file as a template, but do not commit real secrets.
+Use `.env.example` as a reference for the expected keys. Keep `.env` out of source control.
 
 ## Installation
 
@@ -72,6 +77,7 @@ Then open the local URL shown in the terminal.
 3. Click **Review Code**.
 4. The app sends the code to the Groq API.
 5. The model returns a structured markdown review.
+6. LangSmith traces capture the prompt, language, generated review, and model metadata.
 
 ## Prompt Format
 
@@ -89,7 +95,7 @@ The assistant is instructed to return these sections:
 1. Push the project to a GitHub repository.
 2. Go to Streamlit Community Cloud and create a new app.
 3. Select the repository, branch, and `app.py` as the main file.
-4. Add `GROQ_API_KEY` in the app settings or Streamlit secrets.
+4. Add `GROQ_API_KEY`, `LANGCHAIN_API_KEY`, `LANGCHAIN_TRACING_V2`, and `LANGCHAIN_PROJECT` in the app settings or Streamlit secrets.
 5. Ensure `requirements.txt` is present in the repo.
 6. Deploy and verify that the app can reach the Groq API.
 
@@ -97,7 +103,9 @@ If you prefer secrets over environment files on Streamlit Cloud, add a `.streaml
 
 ```toml
 GROQ_API_KEY = "your_groq_api_key"
-GROQ_MODEL = "llama3-70b-8192"
+LANGCHAIN_API_KEY = "your_existing_langsmith_key"
+LANGCHAIN_TRACING_V2 = "true"
+LANGCHAIN_PROJECT = "Automated_Code_Reviewer"
 ```
 
 ## Notes
