@@ -7,7 +7,7 @@ from datetime import datetime, timezone
 
 from dotenv import load_dotenv
 
-load_dotenv()
+# load_dotenv()  # Removed to avoid hardcoded secrets, consider using environment variables or a secure secrets management system
 
 import streamlit as st
 import streamlit.components.v1 as components
